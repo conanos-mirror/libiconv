@@ -16,7 +16,7 @@ class LibiconvConan(ConanFile):
     exports = ["LICENSE.md"]
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = "shared=False", "fPIC=True"
+    default_options = "shared=True", "fPIC=True"
     archive_name = "{0}-{1}".format(name, version)
     short_paths = True
 
