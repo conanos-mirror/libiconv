@@ -1,8 +1,9 @@
 build: false
-branches:
-  only:
-  - /testing\/*/
-  - /stable\/*/
+-
+  branches:
+    only:
+    - /testing\/*/
+    - /stable\/*/
 
 environment:
     PYTHON: "C:\\Python37"
