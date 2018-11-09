@@ -17,6 +17,7 @@ class LibiconvConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = "shared=True", "fPIC=True"
+    
     archive_name = "{0}-{1}".format(name, version)
     short_paths = True
 
@@ -30,6 +31,10 @@ class LibiconvConan(ConanFile):
 
     def configure(self):
         del self.settings.compiler.libcxx
+
+    def build_requirements(self):
+        if self.is_msvc:
+            self.build_requires("cygwin_installer/2.9.0@bincrafters/stable")
 
     def config_options(self):
         if self.settings.os == 'Windows':
