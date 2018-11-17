@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
+from conans import ConanFile, tools, AutoToolsBuildEnvironment,CMake
 import os
 
 
@@ -13,13 +13,14 @@ class LibiconvConan(ConanFile):
     homepage = "https://www.gnu.org/software/libiconv/"
     author = "Bincrafters <bincrafters@gmail.com>"
     license = "LGPL-2.1"
-    exports = ["LICENSE.md"]
+    exports = ["LICENSE.md",'CMakeLists.txt','cmake/*']
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = "shared=True", "fPIC=True"
     
     archive_name = "{0}-{1}".format(name, version)
     short_paths = True
+    generators = "cmake"
 
     @property
     def is_mingw(self):
@@ -32,9 +33,9 @@ class LibiconvConan(ConanFile):
     def configure(self):
         del self.settings.compiler.libcxx
 
-    def build_requirements(self):
-        if self.is_msvc:
-            self.build_requires("cygwin_installer/2.9.0@bincrafters/stable")
+    #def build_requirements(self):
+    #    if self.is_msvc:
+    #        self.build_requires("cygwin_installer/2.9.0@bincrafters/stable")
 
     def config_options(self):
         if self.settings.os == 'Windows':
@@ -42,6 +43,10 @@ class LibiconvConan(ConanFile):
 
     def source(self):
         source_url = "https://ftp.gnu.org/gnu/libiconv"
+
+        if os.environ.get('FUNCKING_CFW') and os.environ.get('GNU_MIRROR_URL'):
+            source_url = '%s/%s'%(os.environ['GNU_MIRROR_URL'],self.name)
+        
         tools.get("{0}/{1}.tar.gz".format(source_url, self.archive_name))
 
     def build_autotools(self):
@@ -112,21 +117,31 @@ class LibiconvConan(ConanFile):
                 env_build.make()
                 env_build.make(args=["install"])
 
+    def cmake_build(self):
+        cmake = CMake(self)
+        cmake.configure(build_folder='~build',
+        defs={'USE_CONAN_IO':True})
+        
+        cmake.build()
+        cmake.install()
+
+
     def build(self):
         if self.settings.os == "Windows":
-            if tools.os_info.detect_windows_subsystem() not in ("cygwin", "msys2"):
-                raise Exception("This recipe needs a Windows Subsystem to be compiled. "
-                                "You can specify a build_require to:"
-                                " 'msys2_installer/latest@bincrafters/stable' or"
-                                " 'cygwin_installer/2.9.0@bincrafters/stable' or"
-                                " put in the PATH your own installation")
-            if self.is_msvc:
-                with tools.vcvars(self.settings):
-                    self.build_autotools()
-            elif self.is_mingw:
-                self.build_autotools()
-            else:
-                raise Exception("unsupported build")
+            self.cmake_build()
+            #if tools.os_info.detect_windows_subsystem() not in ("cygwin", "msys2"):
+            #    raise Exception("This recipe needs a Windows Subsystem to be compiled. "
+            #                    "You can specify a build_require to:"
+            #                    " 'msys2_installer/latest@bincrafters/stable' or"
+            #                    " 'cygwin_installer/2.9.0@bincrafters/stable' or"
+            #                    " put in the PATH your own installation")
+            #if self.is_msvc:
+            #    with tools.vcvars(self.settings):
+            #        self.build_autotools()
+            #elif self.is_mingw:
+            #    self.build_autotools()
+            #else:
+            #    raise Exception("unsupported build")
         else:
             self.build_autotools()
 
@@ -134,8 +149,8 @@ class LibiconvConan(ConanFile):
         self.copy(os.path.join(self.archive_name, "COPYING.LIB"), dst="licenses", ignore_case=True, keep_path=False)
 
     def package_info(self):
-        if self.is_msvc and self.options.shared:
-            self.cpp_info.libs = ['iconv.dll.lib']
-        else:
-            self.cpp_info.libs = ['iconv']
+        #if self.is_msvc and self.options.shared:
+        #    self.cpp_info.libs = ['iconv.dll.lib']
+        #else:
+        self.cpp_info.libs = ['iconv']
         self.env_info.path.append(os.path.join(self.package_folder, "bin"))
