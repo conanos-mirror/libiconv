@@ -26,7 +26,7 @@ SET(LIBICONV_SOVERSION "1")
 
 set(ICONV_CONST)
 include(cmake/config.cmake)
-message("==========> ICONV_CONST:${ICONV_CONST}")
+
 if( BUILD_SHARED_LIBS )
    set(DLL_VARIABLE "__declspec (dllexport)")
 endif()
@@ -39,7 +39,7 @@ CONFIGURE_FILE( ${LIBICONV_PROJECT_DIR}/libcharset/include/localcharset.h.in ${C
 if( BUILD_SHARED_LIBS )
    set(DLL_VARIABLE "__declspec (dllimport)")
 endif()
-message("@@@@@@@@@@@@ ICONV_CONST:${ICONV_CONST}")
+
 CONFIGURE_FILE( ${LIBICONV_PROJECT_DIR}/include/iconv.h.in package/iconv.h @ONLY)
 
 # Definitions
