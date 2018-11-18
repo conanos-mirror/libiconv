@@ -1,0 +1,8 @@
+;
+; Definition file of iconv.dll
+;
+LIBRARY "iconv.dll"
+EXPORTS
+  libiconv_open
+  libiconv
+  libiconv_close
