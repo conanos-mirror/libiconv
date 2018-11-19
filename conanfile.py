@@ -120,7 +120,9 @@ class LibiconvConan(ConanFile):
     def cmake_build(self):
         cmake = CMake(self)
         cmake.configure(build_folder='~build',
-        defs={'USE_CONAN_IO':True})
+        defs={'USE_CONAN_IO':True
+        'BUILD_SHARED_LIBS': self.options['shared']
+        })
         
         cmake.build()
         cmake.install()
