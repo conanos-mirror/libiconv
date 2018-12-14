@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from conans import ConanFile, tools, AutoToolsBuildEnvironment,CMake
-import os
+import os, shutil
 
 
 class LibiconvConan(ConanFile):
@@ -14,6 +14,7 @@ class LibiconvConan(ConanFile):
     author = "Bincrafters <bincrafters@gmail.com>"
     license = "LGPL-2.1"
     exports = ["LICENSE.md",'CMakeLists.txt','cmake/*']
+    exports_sources = ["iconv.h.in"]
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = "shared=True", "fPIC=True"
@@ -48,6 +49,9 @@ class LibiconvConan(ConanFile):
             source_url = '%s/%s'%(os.environ['GNU_MIRROR_URL'],self.name)
         
         tools.get("{0}/{1}.tar.gz".format(source_url, self.archive_name))
+
+        if self.settings.os == "Windows":
+            shutil.copy2(os.path.join(self.source_folder,"iconv.h.in"), os.path.join(self.source_folder,self.archive_name,"include","iconv.h.in"))
 
     def build_autotools(self):
         prefix = os.path.abspath(self.package_folder)
